@@ -1,1 +1,0 @@
-"./main_transmit.obj" "./TI_USCI_I2C_master.obj" -l"libc.a" "../lnk_msp430g2553.cmd" 
