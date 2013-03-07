@@ -2,11 +2,8 @@
 #include <msp430g2553.h>
 #include "TI_USCI_I2C_master.h"
 
-unsigned char timercounter;
-
 void main(void){
-	unsigned char array[40] = { 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb };
-	unsigned char store[10] = { 88, 88, 88, 88, 88, 88, 88, 88, 88, 88};
+	unsigned char store[8] = { 88, 88, 88, 88, 88, 88, 88, 88};
 
 	WDTCTL = WDTPW + WDTHOLD; // Stop watchdog timer
 	P1DIR |= 0x01; // Set P1.0 to output direction

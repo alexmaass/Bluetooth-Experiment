@@ -154,7 +154,7 @@ unsigned char TI_USCI_I2C_slave_present(unsigned char slave_address){
 //------------------------------------------------------------------------------
 // unsigned char TI_USCI_I2C_notready()
 //
-// This function is used to check if there is commuincation in progress. 
+// This function is used to check if there is communication in progress.
 //
 // OUT:  unsigned char  =>  0: I2C bus is idle, 
 //                          1: communication is in progress
