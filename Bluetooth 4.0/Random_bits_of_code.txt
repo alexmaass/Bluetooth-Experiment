@@ -1,0 +1,77 @@
+Random bits of code (BGScript)
+
+# Boot event listener (gets executed when the device is powered)
+event system_boot(major, minor, patch, build, ll_version, protocol_version, hw)
+	connected=0																# We are not connected
+	call system_endpoint_set_watermarks(5,0,0)								# Disable watermarks
+	call gap_set_adv_parameters(32, 48, 7)									# Set advertisement parameters 20 to 80 ms and all channels
+	call gap_set_mode(gap_general_discoverable, gap_undirected_connectable)	# Start advertisement
+	
+	
+
+# Connection event listener
+event connection_status(connection, flags, address, address_type, conn_interval, timeout, latency)
+	connected = 1			# Device is connected
+end
+
+
+
+# Disconnection event listener
+event connection_disconnected(connection, reason)
+	connected = 0															# We are not connected	
+	call system_endpoint_set_watermarks(5, 0, 0)							# disable watermarks
+	call gap_set_adv_parameters(32, 48, 7)									# Set advertisement parameters 20 to 30 ms and all channels
+	call gap_set_mode(gap_general_discoverable, gap_undirected_connectable)	# Start advertisement
+end
+
+
+
+# Incoming data from Bluetooth: Attributes value event listener
+event attributes_value(connection, reason, handle, offset, value_len, value_data)
+	if handle = xgatt_data then
+		out(0:value_len) - value_data(0:value_len)				# Copy data from GATT
+		out_len = value_len										# Store data length
+		call system_endpoint_set_watermarks(5, $ff, out_len)	# Set TX watermark to data length
+	end if
+end
+
+
+
+# System endpoint watermark TX event listener
+event system_endpoint_watermark_tx(endpoint, size)
+	if endpoint = 5 then
+		call system_endpoint_set_watermarks(5, $ff, 0)			# Disable TX watermark
+		call system_endpoint_tx(5, out_len, out(0:out_len))		# Write data to UART
+		call attributes_user_write_response(0,0)				# Respond to connection handle 0 (only single connection supported)
+		out_len = 0
+	end if
+end
+
+
+
+# Attribute status event listener
+# Event occurs if attribute's Client Characteristic Configuration value changes.
+event attributes_status(handle, flags)
+	if handle = xgatt_data then
+		if flags & 2 then
+			call system_endpoint_set_watermarks(5, 1, $ff)		# Indications are enabled -> set RX watermark to 1 byte
+		else
+			call system_endpoint_set_watermarks(5, 0, $ff)		# Indications are NOT enabled -> disable RX watermark
+		end if
+	end if
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
